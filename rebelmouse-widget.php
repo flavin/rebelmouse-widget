@@ -33,7 +33,7 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 /**
  * Create the widget class and extend from the WP_Widget
  */
- class rebelmouse_widget extends WP_Widget {
+ class Rebelmouse_Widget extends WP_Widget {
  	
 	/**
 	 * Set the widget defaults
@@ -50,6 +50,9 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 	private	$show_following = "true";
 	private	$show_also_in_rm = "true";
 	private	$show_share = "true";
+
+	private	$show_button = "true";
+	private	$theme_button = "clear";
  	
 	/**
 	 * Register widget with WordPress.
@@ -57,30 +60,16 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 	public function __construct() {
 		
 		parent::__construct(
-			'rebelmouse_widget',// Base ID
+			'Rebelmouse_Widget',// Base ID
 			'RebelMouse ',// Name
 			array(
-				'classname'		=>	'rebelmouse_widget',
+				'classname'		=>	'Rebelmouse_Widget',
 				'description'	=>	__('A widget to add your rebelmouse stream.', 'framework')
 			)
 		);
 
-		// Load JavaScript and stylesheets
-		$this->register_scripts_and_styles();
-
 	} // end constructor
 	
-	/**
-	 * Registers and enqueues stylesheets for the administration panel and the
-	 * public facing site.
-	 */
-	public function register_scripts_and_styles() {
-		
-		
-
-	} // end register_scripts_and_styles
-	
-
 	/**
 	 * Front-end display of widget.
 	 *
@@ -97,19 +86,15 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		
 		$this->site_name = $instance['site_name'];
 		$this->cols = $instance['cols'];
-		$this->skip = $instance['skip'];
 		$this->width *= $this->cols;
 
-        $params = 'embedded=1';
-        $params .= '&cols=' . $this->cols;
+		$this->show_button = ($instance['show_button'] == "1" ?  True : False);
+		$this->theme_button = $instance['theme_button'];
 
         $skip = ($instance['show_about'] == "1" ?  "" : "about-site,");
         $skip .= ($instance['show_following'] == "1" ? "" : "network," );
         $skip .= ($instance['show_also_in_rm'] == "1" ? "" : "also-on-rm," );
         $skip .= ($instance['show_share'] == "1" ? "" : "share-frontpage" );
-
-        if ( !empty( $skip ) )
-            $params .= '&skip=' . $skip;
 		
 		/* Before widget (defined by themes). */
 		echo $before_widget;
@@ -118,18 +103,59 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		if ( $this->widget_title )
 			echo $before_title . $this->widget_title . $after_title;
 
-		/* RebelMouse Embed*/
-        
-		 ?>
-            <style>.rebelmouse-embed { overflow-y:hidden;-ms-overflow-y: hidden;padding:0;magin:0;min-height:1500px; }iframe::-webkit-scrollbar { display: none; } </style>
-            <iframe class="rebelmouse-embed" allowtransparency="true" frameborder="0" 
-                    height="<?php echo $this->height; ?>px" width="<?php echo $this->width; ?>px"  
-                    src="http://www.rebelmouse.com/<?php echo $this->site_name ?>/?<?php echo $params; ?>"></iframe>
-		<?php 
+		/* RebelMouse Render*/
+        $this->render( array('site_name' => $this->site_name, 'cols' => $this->cols
+                            ,'skip' => $skip, 'width' => $this->width, 'height' => $this->height
+                            ,'show_button' => $this->show_button, 'theme_button' => $this->theme_button ) );
 
 		/* After widget (defined by themes). */
 		echo $after_widget;
 	}
+
+    public function render( $args ) {
+        $r = wp_parse_args( $args
+                            , array('site_name' => 'rebelmouse'
+                                    ,'cols' => '1'
+                                    ,'skip' => ''
+                                    ,'width'=> '0'
+                                    ,'height' => '0'
+                                    ,'show_button' => True
+                                    ,'theme_button' => 'clear'
+                                    ) );
+
+        if ( empty( $height ) )
+            $r['height'] = '100%';
+        else
+            $r['height'] .= 'px';
+
+        if ( empty( $width ) )
+            $r['width'] = '100%';
+        else
+            $r['width'] .= 'px';
+
+        $params = 'embedded=1';
+
+        $params .= '&cols=' . $r['cols'];
+
+        if ( !empty( $r['skip'] ) )
+            $params .= '&skip=' . $r['skip'];
+
+        ?>
+
+        <style>.rebelmouse-embed { overflow-y:hidden;-ms-overflow-y: hidden;padding:0;magin:0;min-height:1500px; }iframe::-webkit-scrollbar { display: none; } .rebelmouse_follow {width: 257px;} </style>
+        <?php
+        if  ( $r['show_button'] )
+            if ( $r['theme_button'] == 'dark' )
+                echo '<a href="http://www.rebelmouse.com/' . $r['site_name'] . '/" class="rebelmouse_follow"><img src="http://www.rebelmouse.com/static/img/resources/follow-me-drk-logo.png"></a>';
+            else
+                echo '<a href="http://www.rebelmouse.com/' . $r['site_name'] . '/" class="rebelmouse_follow"><img src="http://www.rebelmouse.com/static/img/resources/follow-me-logo.png"></a>';
+
+        ?>
+            <iframe class="rebelmouse-embed" allowtransparency="true" frameborder="0" 
+                    height="<?php echo $r['height']; ?>" width="<?php echo $r['width']; ?>"  
+                    src="http://www.rebelmouse.com/<?php echo $r['site_name'] ?>/?<?php echo $params; ?>"></iframe>
+        <?php
+    }
 
 	/**
 	 * Sanitize widget form values as they are saved.
@@ -157,6 +183,9 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		$instance['show_also_in_rm'] = (bool)$new_instance['show_also_in_rm'];
 		$instance['show_share'] = (bool)$new_instance['show_share'];
 
+		$instance['show_button'] = (bool)$new_instance['show_button'];
+		$instance['theme_button'] = $new_instance['theme_button'];
+
 		return $instance;
 	}
 	
@@ -174,7 +203,6 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		'title' => $this->widget_title,
 		'site_name' => $this->site_name,
 		'cols' => $this->cols,
-		'skip' => $this->skip,
 
 		'width' => $this->width,
 		'show_about' => $this->show_about,
@@ -186,30 +214,38 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
+        <h4 style="border-bottom: solid 1px #CCC;">RebelMouse Embed</h4>
+
 		<!-- Widget Title: Text Input -->
 		<p>
 
 
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'framework') ?></label>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title', 'framework') ?>: </label>
 			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" />
 		</p>
 
 		<!-- Page name: Text Input -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'site_name' ); ?>"><?php _e('Site name (http://www.rebelmouse.com/[site_name])', 'framework') ?></label>
+			<label for="<?php echo $this->get_field_id( 'site_name' ); ?>"><?php _e('Site name', 'framework') ?>: </label>
 			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'site_name' ); ?>" name="<?php echo $this->get_field_name( 'site_name' ); ?>" value="<?php echo $instance['site_name']; ?>" />
+            <br><small>http://www.rebelmouse.com/[site_name]</small>
 		</p>
 
 		<!-- Cols: Text Input -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'cols' ); ?>"><?php _e('Columns', 'framework') ?></label>
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'cols' ); ?>" name="<?php echo $this->get_field_name( 'cols' ); ?>" value="<?php echo $instance['cols']; ?>" />
+			<label for="<?php echo $this->get_field_id( 'cols' ); ?>"><?php _e('Columns', 'framework') ?>: </label>
+            <select id="<?php echo $this->get_field_id( 'cols' ); ?>" name="<?php echo $this->get_field_name( 'cols' ); ?>">
+                <?php for ( $i=1; $i <=5; $i++ ): ?>
+                <option value="<?echo $i; ?>"  <?php ($i == $instance['cols'])? 'seleted="selected"':'';  ?>><?echo $i; ?></option>
+                <?php endfor; ?> 
+            </select> 
+            <br><small>(each column is 271 pixels wide)</small>
 		</p>
 		
 		<!-- Height: Text Input -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php _e('Height', 'framework') ?></label>
-			<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>" name="<?php echo $this->get_field_name( 'height' ); ?>" value="<?php echo $instance['height']; ?>" />
+			<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php _e('Height', 'framework') ?>: </label>
+			<input type="text" id="<?php echo $this->get_field_id( 'height' ); ?>" name="<?php echo $this->get_field_name( 'height' ); ?>" value="<?php echo $instance['height']; ?>" size="5" />px
 		</p>
 		
         <?php /*
@@ -222,29 +258,52 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 		
 		<!-- Show About: Checkbox -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_about' ); ?>"><?php _e('Show About', 'framework') ?></label>
-			<input type="checkbox" class="widefat" id="<?php echo $this->get_field_id( 'show_about' ); ?>" name="<?php echo $this->get_field_name( 'show_about' ); ?>" value="1" <?php echo ($instance['show_about'] == "true" ? "checked='checked'" : ""); ?> />
+			<label for="<?php echo $this->get_field_id( 'show_about' ); ?>"><?php _e('Show About', 'framework') ?>: </label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_about' ); ?>" name="<?php echo $this->get_field_name( 'show_about' ); ?>" value="1" <?php echo ($instance['show_about'] == "true" ? "checked='checked'" : ""); ?> />
 		</p>
 		
 		<!-- Show Following: Checkbox -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_following' ); ?>"><?php _e('Show Following', 'framework') ?></label>
-			<input type="checkbox" class="widefat" id="<?php echo $this->get_field_id( 'show_following' ); ?>" name="<?php echo $this->get_field_name( 'show_following' ); ?>" value="1" <?php echo ($instance['show_following'] == "true" ? "checked='checked'" : ""); ?> />
+			<label for="<?php echo $this->get_field_id( 'show_following' ); ?>"><?php _e('Show Following', 'framework') ?>: </label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_following' ); ?>" name="<?php echo $this->get_field_name( 'show_following' ); ?>" value="1" <?php echo ($instance['show_following'] == "true" ? "checked='checked'" : ""); ?> />
 		</p>
 		
 		<!-- Show Also in RebelMouse: Checkbox -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_also_in_rm' ); ?>"><?php _e('Show Also In RebelMouse', 'framework') ?></label>
-			<input type="checkbox" class="widefat" id="<?php echo $this->get_field_id( 'show_also_in_rm' ); ?>" name="<?php echo $this->get_field_name( 'show_also_in_rm' ); ?>" value="1" <?php echo ($instance['show_also_in_rm'] == "true" ? "checked='checked'" : ""); ?> />
+			<label for="<?php echo $this->get_field_id( 'show_also_in_rm' ); ?>"><?php _e('Show Also In RebelMouse', 'framework') ?>: </label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_also_in_rm' ); ?>" name="<?php echo $this->get_field_name( 'show_also_in_rm' ); ?>" value="1" <?php echo ($instance['show_also_in_rm'] == "true" ? "checked='checked'" : ""); ?> />
 		</p>
 		
 		<!-- Show Share Site: Checkbox -->
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_share' ); ?>"><?php _e('Show Share This Site', 'framework') ?></label>
-			<input type="checkbox" class="widefat" id="<?php echo $this->get_field_id( 'show_share' ); ?>" name="<?php echo $this->get_field_name( 'show_share' ); ?>" value="1" <?php echo ($instance['show_share'] == "true" ? "checked='checked'" : ""); ?> />
+			<label for="<?php echo $this->get_field_id( 'show_share' ); ?>"><?php _e('Show Share This Site', 'framework') ?>: </label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_share' ); ?>" name="<?php echo $this->get_field_name( 'show_share' ); ?>" value="1" <?php echo ($instance['show_share'] == "true" ? "checked='checked'" : ""); ?> />
+		</p>
+
+        <h4 style="border-bottom: solid 1px #CCC;">Follow Button</h4>
+
+		<!-- Show Follow button: Checkbox -->
+		<p>
+			<label for="<?php echo $this->get_field_id( 'show_button' ); ?>"><?php _e('Show Follow Button', 'framework') ?>: </label>
+			<input type="checkbox" id="<?php echo $this->get_field_id( 'show_button' ); ?>" name="<?php echo $this->get_field_name( 'show_button' ); ?>" value="1" <?php echo ($instance['show_button'] == "true" ? "checked='checked'" : ""); ?> />
 		</p>
 		
+		<!-- Theme: Text Input -->
+		<p>
+			<label for="<?php echo $this->get_field_id( 'theme_button' ); ?>"><?php _e('Theme Follow Button', 'framework') ?>: </label>
+            <select id="<?php echo $this->get_field_id( 'theme_button' ); ?>" name="<?php echo $this->get_field_name( 'theme_button' ); ?>">
+                <option value="clear"  <?php ($instance['theme_button'] == 'clear' )? 'seleted="selected"':'';  ?>>Clear</option>
+                <option value="dark"  <?php ($instance['theme_button'] == 'dark' )? 'seleted="selected"':'';  ?>>Dark</option>
+            </select> 
+		</p>
+
 	<?php
 	}
  }
+
+function rebelmouse_embed( $args ) {
+    $rm_widget = new Rebelmouse_Widget();
+    $rm_widget->render( $args );
+}
+
 ?>
