@@ -43,7 +43,8 @@ Example:
 
 == Screenshots ==
 
-1. Options page
+1. Options page.
+2. Demo how it looks.
 
 == Changelog ==
 
