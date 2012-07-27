@@ -142,7 +142,7 @@ add_action( 'widgets_init', create_function( '', 'register_widget("rebelmouse_wi
 
         ?>
 
-        <style>.rebelmouse-embed { overflow-y:hidden;-ms-overflow-y: hidden;padding:0;magin:0;min-height:1500px; }iframe::-webkit-scrollbar { display: none; } .rebelmouse_follow {width: 257px;} </style>
+        <style>.rebelmouse-embed { overflow-y:hidden;-ms-overflow-y: hidden;padding:0;magin:0;min-height:1500px; }iframe::-webkit-scrollbar { display: none; } </style>
         <?php
         if  ( $r['show_button'] )
             if ( $r['theme_button'] == 'dark' )

@@ -10,7 +10,7 @@ Add a widget to add your rebelmouse stream
 
 == Description ==
 
-Add your rebelmouse stream to your site.
+Add your [Rebelmouse](http://www.rebelmouse.com/) stream to your site.
 
 You can add this as Widget, or insert code wherever you want follow steps in FAQ section.
 
