@@ -32,10 +32,15 @@ Usage:
 Params:
 $args could be:
     'site_name' You rebelmouse site name
+
     'cols' Number of columns to show (the final width is 257px for columns number)
+
     'skip' Element to hide in the stream: about-site, network, also-on-rm, share-frontpage
+
     'height' height of the iframe
+
     'show_button' if you want to show the follow button, 1 to show, 0 to hide.
+
     'theme_button' Theme for the button, could be "dark" or "clear".
 
 Example:
