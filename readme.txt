@@ -10,19 +10,19 @@ Add a widget to add your rebelmouse stream
 
 == Description ==
 
-Add your [Rebelmouse](http://www.rebelmouse.com/) stream to your site.
+Add your [RebelMouse](http://www.rebelmouse.com/) front page to your site.
 
-You can add this as Widget, or insert code wherever you want follow steps in FAQ section.
+You can add your stream as a widget or insert the code wherever you want by following the steps in FAQ section.
 
 == Installation ==
 
-As this is a Wordpress Widget it's very easy to install.
+This Wordpress widget is easy to install:
 
-1. Extract the contents of the zip file into your wp-content/plugins directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to the Appearance -> widget screen drag the widget to a sidebar and fill out the options.
+1. Extract the contents of the zip file into your wp-content/plugins directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+3. Go to the Appearance -> widget screen, drag the widget to a sidebar, and fill out the necessary fields and options.
 
-or you can insert without widget version like this:
+Alternatively, you can insert a version without a widget (see below):
 
 Usage:
 `<?php rebelmouse_embed( $args ); ?>`
@@ -46,8 +46,8 @@ Example:
 
 == Screenshots ==
 
-1. Options page.
-2. Demo how it looks.
+1. Options page
+2. Example
 
 == Changelog ==
 
