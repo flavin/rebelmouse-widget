@@ -14,8 +14,6 @@ Add your [Rebelmouse](http://www.rebelmouse.com/) stream to your site.
 
 You can add this as Widget, or insert code wherever you want follow steps in FAQ section.
 
-
-
 == Installation ==
 
 As this is a Wordpress Widget it's very easy to install.
